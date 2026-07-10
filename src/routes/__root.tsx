@@ -73,18 +73,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Meridian — Executive AI & Transformation Advisory" },
+      { title: "Simply Innovative Consulting — Executive Advisory & Strategy" },
       {
         name: "description",
         content:
-          "Meridian is a premium advisory firm partnering with leaders on AI strategy, learning, leadership, and organizational transformation.",
+          "Simply Innovative Consulting is a premier advisory firm partnering with leaders on strategic innovation, business transformation, and executive advisory services.",
       },
-      { name: "author", content: "Meridian Advisory" },
-      { property: "og:title", content: "Meridian — Executive AI & Transformation Advisory" },
+      { name: "author", content: "Simply Innovative Consulting" },
+      { property: "og:title", content: "Simply Innovative Consulting — Executive Advisory & Strategy" },
       {
         property: "og:description",
         content:
-          "AI consulting, learning strategy, leadership development, and organizational transformation for ambitious enterprises.",
+          "Strategic consulting, business transformation, leadership advisory, and innovative solutions for forward-thinking enterprises.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
