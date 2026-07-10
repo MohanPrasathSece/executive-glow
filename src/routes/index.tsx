@@ -175,77 +175,79 @@ function Nav() {
   ] as const;
 
   return (
-    <nav
-      className={cn(
-        "glass-nav flex w-full max-w-6xl items-center justify-between rounded-full px-5 py-2.5 transition-all duration-500",
-        scrolled ? "shadow-[var(--shadow-glass)]" : "",
-      )}
-    >
-      <a href="#top" className="flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-background">
-          <span className="h-2 w-2 rounded-full bg-brand" />
-        </span>
-        <span className="font-display text-lg font-bold tracking-tight text-ink">
-          SIC
-        </span>
-      </a>
-
-      <ul className="hidden items-center gap-1 md:flex">
-        {links.map(([label, href]) => (
-          <li key={href}>
-            <a
-              href={href}
-              className="rounded-full px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-alt hover:text-ink"
-            >
-              {label}
-            </a>
-          </li>
-        ))}
-      </ul>
-
-      <div className="hidden md:block">
-        <a
-          href="#contact"
-          className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5"
-        >
-          Book a call
-          <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </a>
-      </div>
-
-      <button
-        className="rounded-full border border-hairline p-2 md:hidden"
-        aria-label="Toggle menu"
-        onClick={() => setOpen((v) => !v)}
+    <div className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
+      <nav
+        className={cn(
+          "glass-nav flex w-full max-w-6xl items-center justify-between rounded-full px-5 py-2.5 transition-all duration-500",
+          scrolled ? "shadow-[var(--shadow-glass)]" : "",
+        )}
       >
-        <div className="space-y-1">
-          <span className="block h-0.5 w-4 bg-ink" />
-          <span className="block h-0.5 w-4 bg-ink" />
-        </div>
-      </button>
+        <a href="#top" className="flex items-center gap-2">
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-background">
+            <span className="h-2 w-2 rounded-full bg-brand" />
+          </span>
+          <span className="font-display text-lg font-bold tracking-tight text-ink">
+            SIC
+          </span>
+        </a>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border border-hairline bg-background p-4 shadow-[var(--shadow-elegant)] md:hidden"
-          >
-            {links.map(([label, href]) => (
+        <ul className="hidden items-center gap-1 md:flex">
+          {links.map(([label, href]) => (
+            <li key={href}>
               <a
-                key={href}
                 href={href}
-                className="block rounded-lg px-4 py-2 text-sm text-ink-soft hover:bg-surface-alt hover:text-ink"
-                onClick={() => setOpen(false)}
+                className="rounded-full px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-alt hover:text-ink"
               >
                 {label}
               </a>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+            </li>
+          ))}
+        </ul>
+
+        <div className="hidden md:block">
+          <a
+            href="#contact"
+            className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5"
+          >
+            Book a call
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </a>
+        </div>
+
+        <button
+          className="rounded-full border border-hairline p-2 md:hidden"
+          aria-label="Toggle menu"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <div className="space-y-1">
+            <span className="block h-0.5 w-4 bg-ink" />
+            <span className="block h-0.5 w-4 bg-ink" />
+          </div>
+        </button>
+
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border border-hairline bg-background p-4 shadow-[var(--shadow-elegant)] md:hidden"
+            >
+              {links.map(([label, href]) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="block rounded-lg px-4 py-2 text-sm text-ink-soft hover:bg-surface-alt hover:text-ink"
+                  onClick={() => setOpen(false)}
+                >
+                  {label}
+                </a>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
+    </div>
   );
 }
 
