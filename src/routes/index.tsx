@@ -97,7 +97,7 @@ function MagneticButton({
   };
 
   const base =
-    "inline-flex items-center gap-1.5 rounded-full transition-all group";
+    "inline-flex items-center justify-center px-6 py-3 text-sm font-medium gap-1.5 rounded-full transition-all group";
 
   const variants = {
     primary:
