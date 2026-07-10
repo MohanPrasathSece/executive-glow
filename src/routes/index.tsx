@@ -28,11 +28,11 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Meridian — Executive AI & Transformation Advisory" },
+      { title: "Simply Innovative Consulting — Executive Advisory & Strategy" },
       {
         name: "description",
         content:
-          "Meridian partners with leaders on AI strategy, learning, leadership and organizational transformation. Executive advisory for ambitious enterprises.",
+          "Simply Innovative Consulting partners with leaders on strategic innovation, business transformation, and executive advisory. Consulting for ambitious enterprises.",
       },
     ],
   }),
@@ -42,23 +42,31 @@ export const Route = createFileRoute("/")({
 /* ---------- helpers ---------- */
 
 function useCountUp(target: number, duration = 1600) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-  const [value, setValue] = useState(0);
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { margin: "-100px" });
+
   useEffect(() => {
-    if (!inView) return;
-    let raf = 0;
-    const start = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - start) / duration);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setValue(Math.round(target * eased));
-      if (p < 1) raf = requestAnimationFrame(tick);
+    if (!isInView) return;
+
+    let startTime: number;
+    let animationId: number;
+
+    const animate = (currentTime: number) => {
+      if (!startTime) startTime = currentTime;
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      setCount(Math.floor(progress * target));
+
+      if (progress < 1) {
+        animationId = requestAnimationFrame(animate);
+      }
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, target, duration]);
-  return { ref, value };
+
+    animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, [isInView, target, duration]);
+
+  return { count, ref };
 }
 
 function MagneticButton({
@@ -89,23 +97,25 @@ function MagneticButton({
   };
 
   const base =
-    "group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-all duration-300 will-change-transform";
-  const styles =
-    variant === "primary"
-      ? "bg-brand text-brand-foreground shadow-[var(--shadow-glow)] hover:bg-brand-hover"
-      : "bg-background text-ink border border-brand/60 text-brand hover:bg-accent-tint";
+    "inline-flex items-center gap-1.5 rounded-full transition-all group";
+
+  const variants = {
+    primary:
+      "bg-brand text-brand-foreground hover:shadow-[var(--shadow-elegant)] group-hover:-translate-y-0.5",
+    secondary:
+      "border border-hairline bg-background text-ink hover:bg-surface-alt group-hover:-translate-y-0.5",
+  };
 
   return (
     <motion.a
       ref={ref}
       href={href}
+      className={cn(base, variants[variant])}
+      style={{ x: sx, y: sy }}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      style={{ x: sx, y: sy }}
-      className={cn(base, styles)}
     >
       {children}
-      <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
     </motion.a>
   );
 }
@@ -128,12 +138,15 @@ function Reveal({
   delay?: number;
   className?: string;
 }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { margin: "-100px" });
+
   return (
     <motion.div
-      variants={fadeUp}
+      ref={ref}
       initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-80px" }}
+      animate={isInView ? "show" : "hidden"}
+      variants={fadeUp}
       custom={delay}
       className={className}
     >
@@ -147,10 +160,10 @@ function Reveal({
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
@@ -158,66 +171,58 @@ function Nav() {
     ["Services", "#services"],
     ["Approach", "#approach"],
     ["Work", "#work"],
-    ["Insights", "#insights"],
     ["Contact", "#contact"],
-  ];
+  ] as const;
 
   return (
-    <motion.header
-      initial={{ y: -30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed inset-x-0 top-4 z-50 flex justify-center px-4"
+    <nav
+      className={cn(
+        "glass-nav flex w-full max-w-6xl items-center justify-between rounded-full px-5 py-2.5 transition-all duration-500",
+        scrolled ? "shadow-[var(--shadow-glass)]" : "",
+      )}
     >
-      <nav
-        className={cn(
-          "glass-nav flex w-full max-w-6xl items-center justify-between rounded-full px-5 py-2.5 transition-all duration-500",
-          scrolled ? "shadow-[var(--shadow-glass)]" : "",
-        )}
-      >
-        <a href="#top" className="flex items-center gap-2">
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-background">
-            <span className="h-2 w-2 rounded-full bg-brand" />
-          </span>
-          <span className="font-display text-lg font-bold tracking-tight text-ink">
-            Meridian
-          </span>
-        </a>
+      <a href="#top" className="flex items-center gap-2">
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-background">
+          <span className="h-2 w-2 rounded-full bg-brand" />
+        </span>
+        <span className="font-display text-lg font-bold tracking-tight text-ink">
+          SIC
+        </span>
+      </a>
 
-        <ul className="hidden items-center gap-1 md:flex">
-          {links.map(([label, href]) => (
-            <li key={href}>
-              <a
-                href={href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-alt hover:text-ink"
-              >
-                {label}
-              </a>
-            </li>
-          ))}
-        </ul>
+      <ul className="hidden items-center gap-1 md:flex">
+        {links.map(([label, href]) => (
+          <li key={href}>
+            <a
+              href={href}
+              className="rounded-full px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:bg-surface-alt hover:text-ink"
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
 
-        <div className="hidden md:block">
-          <a
-            href="#contact"
-            className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5"
-          >
-            Book a call
-            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
-        </div>
-
-        <button
-          className="rounded-full border border-hairline p-2 md:hidden"
-          aria-label="Toggle menu"
-          onClick={() => setOpen((v) => !v)}
+      <div className="hidden md:block">
+        <a
+          href="#contact"
+          className="group inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-background transition-transform hover:-translate-y-0.5"
         >
-          <div className="space-y-1">
-            <span className="block h-0.5 w-4 bg-ink" />
-            <span className="block h-0.5 w-4 bg-ink" />
-          </div>
-        </button>
-      </nav>
+          Book a call
+          <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        </a>
+      </div>
+
+      <button
+        className="rounded-full border border-hairline p-2 md:hidden"
+        aria-label="Toggle menu"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <div className="space-y-1">
+          <span className="block h-0.5 w-4 bg-ink" />
+          <span className="block h-0.5 w-4 bg-ink" />
+        </div>
+      </button>
 
       <AnimatePresence>
         {open && (
@@ -225,121 +230,84 @@ function Nav() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute top-16 w-[calc(100%-2rem)] max-w-6xl rounded-3xl glass-nav p-4 md:hidden"
+            className="absolute left-0 right-0 top-full z-50 mt-2 rounded-2xl border border-hairline bg-background p-4 shadow-[var(--shadow-elegant)] md:hidden"
           >
-            <ul className="flex flex-col">
-              {links.map(([label, href]) => (
-                <li key={href}>
-                  <a
-                    href={href}
-                    onClick={() => setOpen(false)}
-                    className="block rounded-2xl px-4 py-3 text-sm font-medium text-ink hover:bg-surface-alt"
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {links.map(([label, href]) => (
+              <a
+                key={href}
+                href={href}
+                className="block rounded-lg px-4 py-2 text-sm text-ink-soft hover:bg-surface-alt hover:text-ink"
+                onClick={() => setOpen(false)}
+              >
+                {label}
+              </a>
+            ))}
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </nav>
   );
 }
 
 function ScrollProgress() {
+  const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
-  const w = useSpring(scrollYProgress, { stiffness: 120, damping: 20 });
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
   return (
     <motion.div
-      style={{ scaleX: w, transformOrigin: "0% 50%" }}
-      className="fixed inset-x-0 top-0 z-[60] h-0.5 bg-brand"
+      ref={ref}
+      className="fixed top-0 left-0 right-0 h-1 bg-brand z-50 origin-left"
+      style={{ scaleX }}
     />
   );
 }
 
 function HeroArt() {
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 600], [0, -60]);
   return (
-    <motion.div
-      style={{ y }}
-      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-    >
-      {/* soft grid */}
-      <div
-        className="absolute inset-0 opacity-[0.35]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #E5E7EB 1px, transparent 1px), linear-gradient(to bottom, #E5E7EB 1px, transparent 1px)",
-          backgroundSize: "72px 72px",
-          maskImage:
-            "radial-gradient(ellipse at 60% 30%, rgba(0,0,0,0.9), transparent 65%)",
-        }}
-      />
-      {/* abstract orange orb */}
-      <div className="absolute right-[-10%] top-[10%] h-[520px] w-[520px] rounded-full bg-accent-tint blur-3xl" />
-      {/* line illustration */}
-      <svg
-        className="absolute right-6 top-32 hidden h-[420px] w-[420px] text-brand/70 md:block"
-        viewBox="0 0 400 400"
-        fill="none"
-      >
-        {[...Array(9)].map((_, i) => (
-          <motion.circle
-            key={i}
-            cx="200"
-            cy="200"
-            r={30 + i * 18}
-            stroke="currentColor"
-            strokeWidth="1"
-            opacity={0.15 + i * 0.05}
-            initial={{ pathLength: 0, rotate: 0 }}
-            animate={{ pathLength: 1, rotate: 360 }}
-            transition={{
-              pathLength: { duration: 2 + i * 0.15, ease: "easeOut" },
-              rotate: { duration: 60 + i * 8, repeat: Infinity, ease: "linear" },
-            }}
-            style={{ transformOrigin: "200px 200px" }}
-          />
-        ))}
-        <circle cx="200" cy="200" r="4" fill="currentColor" />
-      </svg>
-    </motion.div>
+    <div className="absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-brand/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-brand/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+    </div>
   );
 }
 
 function Hero() {
-  return (
-    <section id="top" className="relative overflow-hidden pt-40 pb-28 md:pt-52 md:pb-36">
-      <HeroArt />
-      <div className="mx-auto max-w-6xl px-6">
-        <Reveal>
-          <span className="inline-flex items-center gap-2 rounded-full border border-hairline bg-background/60 px-3 py-1 text-xs font-medium text-ink-soft backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            Executive advisory · AI · Transformation
-          </span>
-        </Reveal>
+  const [scrollY, setScrollY] = useState(0);
 
-        <Reveal delay={1}>
-          <h1 className="mt-6 max-w-4xl font-display text-5xl font-bold leading-[1.02] tracking-tight text-ink md:text-7xl">
-            Clarity for the leaders
-            <br />
-            reshaping their industry
-            <span className="text-brand">.</span>
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-28 pb-16">
+      <HeroArt />
+
+      <motion.div
+        className="absolute inset-0 -z-10"
+        style={{ y: scrollY * 0.5 }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+      </motion.div>
+
+      <div className="mx-auto max-w-6xl px-6 text-center">
+        <Reveal>
+          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight text-ink leading-tight">
+            Transform your enterprise
           </h1>
         </Reveal>
 
-        <Reveal delay={2}>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft md:text-xl">
-            Meridian is a boutique advisory partnering with executive teams on AI
-            strategy, learning, leadership, and organizational transformation —
-            translating ambition into measurable outcomes.
+        <Reveal delay={1}>
+          <p className="mt-6 max-w-2xl mx-auto text-lg leading-relaxed text-ink-soft md:text-xl">
+            Simply Innovative Consulting is a boutique advisory partnering with executive teams on strategic innovation,
+            business transformation, and leadership — translating ambition into measurable outcomes.
           </p>
         </Reveal>
 
         <Reveal delay={3}>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <MagneticButton variant="primary">Start an engagement</MagneticButton>
             <MagneticButton variant="secondary" href="#services">
               Explore our practice
@@ -348,19 +316,21 @@ function Hero() {
         </Reveal>
 
         <Reveal delay={4}>
-          <div className="mt-16 grid max-w-3xl grid-cols-2 gap-8 border-t border-hairline pt-8 md:grid-cols-4">
+          <div className="mt-16 grid max-w-3xl mx-auto grid-cols-2 gap-8 border-t border-hairline pt-8 md:grid-cols-4">
             {[
-              ["12+", "Years advising"],
-              ["40", "Global engagements"],
-              ["96%", "Retention"],
-              ["4.9", "Client NPS"],
-            ].map(([k, v]) => (
-              <div key={v}>
-                <div className="font-numeric text-2xl font-semibold text-ink">{k}</div>
-                <div className="mt-1 text-xs uppercase tracking-wider text-ink-soft">
-                  {v}
+              ["15+", "Years advising"],
+              ["50+", "Global engagements"],
+              ["98%", "Retention"],
+              ["12×", "Average ROI"],
+            ].map(([value, label]) => (
+              <Reveal key={label} delay={0.5}>
+                <div>
+                  <div className="font-numeric text-3xl md:text-4xl font-semibold tracking-tight text-ink">
+                    {value}
+                  </div>
+                  <p className="mt-2 text-sm text-ink-soft">{label}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </Reveal>
@@ -375,18 +345,20 @@ function Marquee() {
     "Aperture",
     "Helios",
     "Vantage",
-    "Meridian Bank",
+    "Ascent Bank",
     "Kestrel",
     "Lumen Health",
     "Foundry Labs",
   ];
   const items = [...logos, ...logos];
+
   return (
     <section className="border-y border-hairline bg-surface-alt py-10">
       <div className="mx-auto max-w-6xl px-6">
         <p className="text-center text-xs uppercase tracking-[0.2em] text-ink-soft">
           Trusted by leadership teams at
         </p>
+
         <div className="mt-6 overflow-hidden">
           <div className="flex w-max animate-marquee items-center gap-14">
             {items.map((n, i) => (
@@ -405,79 +377,50 @@ function Marquee() {
 }
 
 function Services() {
-  const items = [
+  const services = [
     {
       icon: Sparkles,
-      title: "AI Consulting",
-      desc: "From opportunity mapping to production AI systems — designed with human judgement at the center.",
-      bullets: ["AI strategy & governance", "Use-case discovery", "Build vs. buy roadmaps"],
-    },
-    {
-      icon: GraduationCap,
-      title: "Learning Strategy",
-      desc: "Modern learning architectures that scale capability across geographies, functions and career stages.",
-      bullets: ["Capability frameworks", "Academy design", "Measurement systems"],
+      title: "Strategy & Innovation",
+      description: "Navigate market disruption and chart new growth vectors with confidence.",
     },
     {
       icon: Users,
       title: "Leadership Development",
-      desc: "Executive programs that sharpen judgement, accelerate decisions and align teams around a shared future.",
-      bullets: ["C-suite coaching", "Leader labs", "Succession & readiness"],
+      description: "Build high-performing executive teams equipped for tomorrow's challenges.",
     },
     {
       icon: Workflow,
       title: "Organizational Transformation",
-      desc: "Operating model redesign that pairs strategy with the muscle to execute — cleanly and confidently.",
-      bullets: ["Operating model", "Change architecture", "Portfolio governance"],
+      description: "Redesign your operating model to drive agility and competitive advantage.",
+    },
+    {
+      icon: Compass,
+      title: "Digital Transformation",
+      description: "Harness emerging technologies to unlock new business possibilities.",
     },
   ];
 
   return (
     <section id="services" className="py-28 md:py-36">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
-          <Reveal>
-            <div>
-              <span className="text-xs uppercase tracking-[0.2em] text-brand">
-                Our practice
-              </span>
-              <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
-                Four disciplines. One outcome:
-                <span className="text-brand"> durable advantage.</span>
-              </h2>
-            </div>
-          </Reveal>
-          <Reveal delay={1}>
-            <p className="max-w-md text-ink-soft">
-              Every engagement is led by a senior partner and built for the
-              specifics of your industry, team and moment.
-            </p>
-          </Reveal>
-        </div>
+        <Reveal>
+          <span className="text-xs uppercase tracking-[0.2em] text-brand">What we do</span>
+        </Reveal>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-2">
-          {items.map((s, i) => (
-            <Reveal key={s.title} delay={i}>
-              <article className="group relative h-full overflow-hidden rounded-3xl border border-hairline bg-background p-8 transition-all duration-500 hover:-translate-y-1 hover:border-brand/40 hover:shadow-[var(--shadow-elegant)]">
-                <div className="mb-8 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-accent-tint text-brand">
-                  <s.icon className="h-5 w-5" />
-                </div>
-                <h3 className="font-display text-2xl font-semibold text-ink">
-                  {s.title}
-                </h3>
-                <p className="mt-3 text-ink-soft">{s.desc}</p>
-                <ul className="mt-6 space-y-2">
-                  {s.bullets.map((b) => (
-                    <li key={b} className="flex items-center gap-2 text-sm text-ink">
-                      <Check className="h-4 w-4 text-brand" />
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-                <div className="absolute right-8 top-8 opacity-0 transition-opacity group-hover:opacity-100">
-                  <ArrowUpRight className="h-5 w-5 text-brand" />
-                </div>
-              </article>
+        <Reveal delay={1}>
+          <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
+            Advisory built for the pace of modern enterprise.
+          </h2>
+        </Reveal>
+
+        <div className="mt-20 grid gap-8 md:grid-cols-2">
+          {services.map((s, i) => (
+            <Reveal key={s.title} delay={i * 0.1}>
+              <div className="rounded-2xl border border-hairline bg-background p-8 hover:shadow-[var(--shadow-elegant)] transition-shadow">
+                <s.icon className="h-8 w-8 text-brand" />
+                <h3 className="mt-4 font-display text-xl font-semibold text-ink">{s.title}</h3>
+                <p className="mt-2 text-ink-soft">{s.description}</p>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -491,8 +434,9 @@ function Bento() {
     <section className="bg-surface-alt py-28 md:py-36">
       <div className="mx-auto max-w-6xl px-6">
         <Reveal>
-          <span className="text-xs uppercase tracking-[0.2em] text-brand">Why Meridian</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-brand">Why Simply Innovative Consulting</span>
         </Reveal>
+
         <Reveal delay={1}>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
             A partner built for the pace of modern leadership.
@@ -505,7 +449,7 @@ function Bento() {
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-ink-soft">Signature framework</p>
                 <h3 className="mt-3 font-display text-3xl font-semibold text-ink">
-                  The Meridian Compass™
+                  The SIC Navigator™
                 </h3>
                 <p className="mt-3 max-w-xl text-ink-soft">
                   A decision architecture that aligns strategy, capability and
@@ -513,6 +457,7 @@ function Bento() {
                   execution on one line.
                 </p>
               </div>
+
               <div className="mt-8 flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full border border-brand/40 bg-accent-tint" />
                 <div className="h-10 w-10 rounded-full bg-brand" />
@@ -522,49 +467,37 @@ function Bento() {
           </Reveal>
 
           <Reveal delay={1} className="md:col-span-2">
-            <div className="flex h-full flex-col justify-between rounded-3xl bg-ink p-8 text-background">
-              <p className="text-xs uppercase tracking-[0.2em] text-background/60">
-                Senior-led
-              </p>
-              <p className="font-display text-2xl font-semibold leading-tight">
-                Every engagement led by a partner with 15+ years of
-                <span className="text-brand"> operator experience</span>.
-              </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={2} className="md:col-span-2">
-            <div className="flex h-full flex-col justify-between rounded-3xl border border-hairline bg-background p-8">
-              <Compass className="h-6 w-6 text-brand" />
-              <div>
-                <h3 className="font-display text-xl font-semibold text-ink">
-                  Industry fluency
-                </h3>
-                <p className="mt-2 text-sm text-ink-soft">
-                  Financial services, healthcare, technology, energy.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={3} className="md:col-span-2">
-            <div className="flex h-full flex-col justify-between rounded-3xl border border-hairline bg-accent-tint p-8">
-              <span className="font-numeric text-4xl font-semibold text-ink">
-                <Counter to={72} suffix="%" />
-              </span>
-              <p className="text-sm text-ink-soft">
-                average productivity lift on AI-enabled workflows within 9 months.
+            <div className="rounded-3xl border border-hairline bg-background p-8">
+              <GraduationCap className="h-8 w-8 text-brand" />
+              <h3 className="mt-4 font-display text-lg font-semibold text-ink">
+                Outcomes-focused
+              </h3>
+              <p className="mt-2 text-sm text-ink-soft">
+                We measure success by your business results, not our hours.
               </p>
             </div>
           </Reveal>
 
-          <Reveal delay={4} className="md:col-span-2">
-            <div className="flex h-full flex-col justify-between rounded-3xl border border-hairline bg-background p-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-ink-soft">
-                Global reach
+          <Reveal delay={1.2} className="md:col-span-2">
+            <div className="rounded-3xl border border-hairline bg-background p-8">
+              <Users className="h-8 w-8 text-brand" />
+              <h3 className="mt-4 font-display text-lg font-semibold text-ink">
+                Senior talent
+              </h3>
+              <p className="mt-2 text-sm text-ink-soft">
+                Partners and principals on every engagement.
               </p>
-              <p className="font-display text-2xl font-semibold text-ink">
-                14 cities · 6 time zones · one team.
+            </div>
+          </Reveal>
+
+          <Reveal delay={1.4} className="md:col-span-2">
+            <div className="rounded-3xl border border-hairline bg-background p-8">
+              <Workflow className="h-8 w-8 text-brand" />
+              <h3 className="mt-4 font-display text-lg font-semibold text-ink">
+                Built to last
+              </h3>
+              <p className="mt-2 text-sm text-ink-soft">
+                We embed capability so impact compounds.
               </p>
             </div>
           </Reveal>
@@ -575,28 +508,29 @@ function Bento() {
 }
 
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const { ref, value } = useCountUp(to);
+  const { count, ref } = useCountUp(to);
   return (
-    <span ref={ref} className="font-numeric">
-      {value}
+    <div ref={ref}>
+      {count}
       {suffix}
-    </span>
+    </div>
   );
 }
 
 function Stats() {
   const stats = [
     { k: 240, s: "+", label: "Executives coached" },
-    { k: 40, s: "", label: "Global engagements" },
-    { k: 96, s: "%", label: "Client retention" },
+    { k: 50, s: "+", label: "Global engagements" },
+    { k: 98, s: "%", label: "Client retention" },
     { k: 12, s: "×", label: "Average ROI" },
   ];
+
   return (
     <section className="py-24">
       <div className="mx-auto max-w-6xl px-6">
         <div className="grid gap-10 rounded-3xl border border-hairline p-10 md:grid-cols-4">
           {stats.map((s, i) => (
-            <Reveal key={s.label} delay={i}>
+            <Reveal key={s.label} delay={i * 0.1}>
               <div>
                 <div className="font-numeric text-5xl font-semibold tracking-tight text-ink">
                   <Counter to={s.k} suffix={s.s} />
@@ -612,62 +546,52 @@ function Stats() {
 }
 
 function Process() {
-  const steps = [
-    {
-      n: "01",
-      t: "Discover",
-      d: "Executive interviews, data diagnostics and market context set an honest baseline.",
-    },
-    {
-      n: "02",
-      t: "Design",
-      d: "We co-create the target operating model, capability map and prioritized portfolio.",
-    },
-    {
-      n: "03",
-      t: "Deliver",
-      d: "Embedded teams ship pilots, transfer capability and instrument what matters.",
-    },
-    {
-      n: "04",
-      t: "Sustain",
-      d: "Governance rhythm, coaching cadences and measurement keep momentum after we leave.",
-    },
-  ];
   return (
-    <section id="approach" className="bg-surface-alt py-28 md:py-36">
+    <section id="approach" className="py-28 md:py-36">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="grid gap-14 md:grid-cols-[1fr_2fr]">
-          <Reveal>
-            <div className="md:sticky md:top-32">
-              <span className="text-xs uppercase tracking-[0.2em] text-brand">Approach</span>
-              <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
-                A calm, senior-led process built on four beats.
-              </h2>
-              <p className="mt-4 text-ink-soft">
-                Predictable pace. Uncompromising quality. Zero theatrics.
-              </p>
-            </div>
-          </Reveal>
+        <Reveal>
+          <span className="text-xs uppercase tracking-[0.2em] text-brand">How we work</span>
+        </Reveal>
 
-          <ol className="relative border-l border-hairline pl-8">
-            {steps.map((s, i) => (
-              <Reveal key={s.n} delay={i}>
-                <li className="relative mb-10 last:mb-0">
-                  <span className="absolute -left-[41px] top-1 grid h-6 w-6 place-items-center rounded-full border border-brand bg-background">
-                    <span className="h-2 w-2 rounded-full bg-brand" />
-                  </span>
-                  <div className="flex items-baseline gap-4">
-                    <span className="font-numeric text-sm text-brand">{s.n}</span>
-                    <h3 className="font-display text-2xl font-semibold text-ink">
-                      {s.t}
-                    </h3>
+        <Reveal delay={1}>
+          <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
+            A proven methodology that delivers.
+          </h2>
+        </Reveal>
+
+        <div className="mt-20 space-y-4 md:space-y-6">
+          {[
+            {
+              phase: "Diagnose",
+              description: "Deep discovery to understand your context, challenges, and aspirations.",
+            },
+            {
+              phase: "Design",
+              description: "Co-create the roadmap that aligns strategy, culture, and execution.",
+            },
+            {
+              phase: "Deploy",
+              description: "Hands-on partnership to translate strategy into measurable impact.",
+            },
+            {
+              phase: "Sustain",
+              description: "Build internal capability so momentum compounds long-term.",
+            },
+          ].map((p, i) => (
+            <Reveal key={p.phase} delay={i * 0.1}>
+              <div className="rounded-2xl border border-hairline bg-background p-6 md:p-8 hover:shadow-[var(--shadow-elegant)] transition-shadow">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-brand-foreground font-semibold">
+                    {i + 1}
                   </div>
-                  <p className="mt-2 max-w-lg text-ink-soft">{s.d}</p>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
+                  <div>
+                    <h3 className="font-display text-xl font-semibold text-ink">{p.phase}</h3>
+                    <p className="mt-1 text-ink-soft">{p.description}</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -695,67 +619,38 @@ function CaseStudies() {
       hue: "bg-accent-tint",
     },
   ];
+
   return (
     <section id="work" className="py-28 md:py-36">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="flex items-end justify-between gap-6">
+        <div className="flex items-end justify-between gap-6 flex-col md:flex-row">
           <Reveal>
             <div>
               <span className="text-xs uppercase tracking-[0.2em] text-brand">
-                Selected work
+                Impact
               </span>
-              <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
-                Outcomes, not slideware.
+              <h2 className="mt-3 max-w-2xl font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
+                Outcomes from our engagements.
               </h2>
             </div>
           </Reveal>
-          <a
-            href="#contact"
-            className="hidden text-sm font-semibold text-brand hover:text-brand-hover md:inline-flex md:items-center md:gap-1"
-          >
-            View all engagements <ArrowRight className="h-4 w-4" />
-          </a>
+
+          <Reveal delay={1}>
+            <a href="#contact" className="group inline-flex items-center gap-2 font-medium text-brand hover:gap-3 transition-all">
+              Explore all case studies
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </Reveal>
         </div>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {cases.map((c, i) => (
-            <Reveal key={c.title} delay={i}>
-              <article className="group h-full overflow-hidden rounded-3xl border border-hairline bg-background transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-elegant)]">
-                <div className={cn("relative h-56 overflow-hidden", c.hue)}>
-                  <svg
-                    className="absolute inset-0 h-full w-full text-brand/50"
-                    viewBox="0 0 400 200"
-                    fill="none"
-                  >
-                    <path
-                      d="M0 160 Q100 60 200 120 T400 80"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                    <path
-                      d="M0 180 Q120 90 220 150 T400 110"
-                      stroke="currentColor"
-                      strokeWidth="1"
-                      opacity="0.6"
-                    />
-                    <circle cx="200" cy="120" r="4" fill="currentColor" />
-                  </svg>
-                </div>
-                <div className="p-6">
-                  <p className="text-xs uppercase tracking-[0.2em] text-ink-soft">
-                    {c.sector}
-                  </p>
-                  <h3 className="mt-3 font-display text-xl font-semibold leading-snug text-ink">
-                    {c.title}
-                  </h3>
-                  <div className="mt-6 flex items-center justify-between">
-                    <span className="font-numeric text-sm font-semibold text-brand">
-                      {c.metric}
-                    </span>
-                    <ArrowUpRight className="h-4 w-4 text-ink-soft transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand" />
-                  </div>
-                </div>
-              </article>
+            <Reveal key={c.title} delay={i * 0.1}>
+              <div className={cn("rounded-2xl border border-hairline p-8", c.hue)}>
+                <p className="text-xs uppercase tracking-[0.2em] text-brand">{c.sector}</p>
+                <h3 className="mt-3 font-display text-lg font-semibold text-ink">{c.title}</h3>
+                <p className="mt-4 text-2xl font-semibold text-ink">{c.metric}</p>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -767,12 +662,12 @@ function CaseStudies() {
 function Testimonials() {
   const quotes = [
     {
-      q: "Meridian brought a quiet confidence to a very loud year. Their partners are the ones I call before the board meeting.",
+      q: "Simply Innovative Consulting brought a quiet confidence to a very loud year. Their partners are the ones I call before the board meeting.",
       n: "Elena Vasquez",
       r: "Group CEO, Vantage Industries",
     },
     {
-      q: "The clearest thinking on AI adoption we've engaged with. Executive-grade, without the theater.",
+      q: "The clearest thinking on business transformation we've engaged with. Executive-grade, without the theater.",
       n: "David Okafor",
       r: "Chief Digital Officer, Helios Bank",
     },
@@ -782,6 +677,7 @@ function Testimonials() {
       r: "CHRO, Lumen Health",
     },
   ];
+
   return (
     <section id="insights" className="bg-ink py-28 text-background md:py-36">
       <div className="mx-auto max-w-6xl px-6">
@@ -790,24 +686,25 @@ function Testimonials() {
             Client voices
           </span>
         </Reveal>
+
         <Reveal delay={1}>
           <h2 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight md:text-5xl">
-            The relationships behind the results.
+            What our clients say.
           </h2>
         </Reveal>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {quotes.map((t, i) => (
-            <Reveal key={t.n} delay={i}>
-              <figure className="flex h-full flex-col justify-between rounded-3xl border border-background/10 bg-background/[0.03] p-8">
-                <blockquote className="font-display text-lg leading-relaxed">
-                  “{t.q}”
+        <div className="mt-20 grid gap-8 md:grid-cols-3">
+          {quotes.map((q, i) => (
+            <Reveal key={q.n} delay={i * 0.1}>
+              <div className="rounded-2xl border border-hairline/30 bg-ink/50 backdrop-blur p-8">
+                <blockquote className="text-lg leading-relaxed italic text-background/90">
+                  "{q.q}"
                 </blockquote>
-                <figcaption className="mt-8 border-t border-background/10 pt-6">
-                  <div className="font-semibold">{t.n}</div>
-                  <div className="text-sm text-background/60">{t.r}</div>
-                </figcaption>
-              </figure>
+                <div className="mt-6 pt-6 border-t border-hairline/30">
+                  <p className="font-semibold text-background">{q.n}</p>
+                  <p className="mt-1 text-sm text-background/70">{q.r}</p>
+                </div>
+              </div>
             </Reveal>
           ))}
         </div>
@@ -817,71 +714,72 @@ function Testimonials() {
 }
 
 function Faq() {
-  const items = [
+  const faqs = [
     {
-      q: "How are engagements typically structured?",
-      a: "Most engagements run 8–20 weeks, led by a senior partner with a small embedded team. We scope tightly around outcomes, not billable hours.",
+      q: "What is the typical engagement length?",
+      a: "Engagements typically run 3-12 months, depending on scope and complexity. We work flexibly to match your cadence.",
     },
     {
-      q: "Do you work with in-house teams or replace them?",
-      a: "We are explicitly partners to your team. Capability transfer is a first-class objective in every engagement — the goal is for you to outgrow us.",
+      q: "Who will be involved from SIC?",
+      a: "A senior partner leads every engagement, supported by specialists matched to your challenge.",
     },
     {
-      q: "What industries do you focus on?",
-      a: "Financial services, healthcare, technology and energy — with a bias toward complex, regulated environments where clarity compounds.",
+      q: "How do you measure success?",
+      a: "We define success metrics at the start—whether revenue impact, capability building, or organizational outcomes.",
     },
     {
-      q: "How do you approach AI responsibly?",
-      a: "Human judgement stays at the center. We design governance, oversight and measurement in from day one, alongside the technology.",
+      q: "What industries do you serve?",
+      a: "We work across financial services, healthcare, technology, consumer, and public sector enterprises.",
     },
   ];
-  const [open, setOpen] = useState<number | null>(0);
+
+  const [open, setOpen] = useState<number | null>(null);
+
   return (
     <section className="py-28 md:py-36">
-      <div className="mx-auto max-w-4xl px-6">
+      <div className="mx-auto max-w-2xl px-6">
         <Reveal>
-          <span className="text-xs uppercase tracking-[0.2em] text-brand">
-            Common questions
-          </span>
+          <span className="text-xs uppercase tracking-[0.2em] text-brand">FAQ</span>
         </Reveal>
+
         <Reveal delay={1}>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
-            Details that matter.
+            Frequently asked questions.
           </h2>
         </Reveal>
 
-        <div className="mt-12 divide-y divide-hairline border-y border-hairline">
-          {items.map((it, i) => {
-            const isOpen = open === i;
-            return (
-              <div key={it.q}>
-                <button
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  className="flex w-full items-center justify-between gap-6 py-6 text-left"
-                >
-                  <span className="font-display text-lg font-semibold text-ink">
-                    {it.q}
-                  </span>
-                  <span className="grid h-8 w-8 place-items-center rounded-full border border-hairline text-ink-soft transition-colors group-hover:text-brand">
-                    {isOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                  </span>
-                </button>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
+        <div className="mt-12 space-y-4">
+          {faqs.map((f, i) => (
+            <Reveal key={f.q} delay={i * 0.05}>
+              <button
+                onClick={() => setOpen(open === i ? null : i)}
+                className="w-full rounded-2xl border border-hairline bg-background p-6 text-left hover:shadow-[var(--shadow-elegant)] transition-all"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="font-display font-semibold text-ink">{f.q}</h3>
+                  {open === i ? (
+                    <Minus className="h-5 w-5 text-brand flex-shrink-0" />
+                  ) : (
+                    <Plus className="h-5 w-5 text-brand flex-shrink-0" />
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {open === i && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                      className="overflow-hidden"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-4 pt-4 border-t border-hairline text-ink-soft"
                     >
-                      <p className="pb-6 pr-12 text-ink-soft">{it.a}</p>
+                      {f.a}
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
-            );
-          })}
+              </button>
+            </Reveal>
+          ))}
         </div>
       </div>
     </section>
@@ -890,6 +788,7 @@ function Faq() {
 
 function Contact() {
   const [sent, setSent] = useState(false);
+
   return (
     <section id="contact" className="bg-surface-alt py-28 md:py-36">
       <div className="mx-auto max-w-6xl px-6">
@@ -909,12 +808,12 @@ function Contact() {
 
               <div className="mt-10 space-y-4 border-t border-hairline pt-8 text-sm">
                 <a
-                  href="mailto:partners@meridian.co"
+                  href="mailto:hello@simplyinnovativeconsulting.com"
                   className="flex items-center gap-3 text-ink hover:text-brand"
                 >
-                  <Mail className="h-4 w-4 text-brand" /> partners@meridian.co
+                  <Mail className="h-4 w-4 text-brand" /> hello@simplyinnovativeconsulting.com
                 </a>
-                <div className="text-ink-soft">London · New York · Singapore</div>
+                <div className="text-ink-soft">New York · London · Singapore</div>
               </div>
             </div>
           </Reveal>
@@ -992,8 +891,9 @@ function Footer() {
           <span className="grid h-8 w-8 place-items-center rounded-full bg-ink text-background">
             <span className="h-2 w-2 rounded-full bg-brand" />
           </span>
-          <span className="font-display text-lg font-bold text-ink">Meridian</span>
+          <span className="font-display text-lg font-bold text-ink">Simply Innovative Consulting</span>
         </div>
+
         <nav className="flex flex-wrap gap-x-8 gap-y-2 text-sm text-ink-soft">
           <a href="#services" className="hover:text-ink">Services</a>
           <a href="#approach" className="hover:text-ink">Approach</a>
@@ -1001,8 +901,9 @@ function Footer() {
           <a href="#contact" className="hover:text-ink">Contact</a>
           <a href="#" className="hover:text-ink">Privacy</a>
         </nav>
+
         <p className="text-xs text-ink-soft">
-          © {new Date().getFullYear()} Meridian Advisory. All rights reserved.
+          © {new Date().getFullYear()} Simply Innovative Consulting. All rights reserved.
         </p>
       </div>
     </footer>
@@ -1032,3 +933,5 @@ function Index() {
     </div>
   );
 }
+
+export default Index;
